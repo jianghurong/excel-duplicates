@@ -76,6 +76,7 @@ function handleDuplicates (excelData) {
 
     const map = {}
     const lenMap = {}
+    const minLenMap = {}
 
     result.forEach(ele => {
         const key = Object.keys(ele)[0]
@@ -89,6 +90,7 @@ function handleDuplicates (excelData) {
         })
     })
 
+    console.log(map, '各数据出现次数Map')
     const newMap = {}
     Object.keys(map).forEach(key => {
         const value = map[key]
@@ -97,18 +99,32 @@ function handleDuplicates (excelData) {
         }
     })
 
+    result.forEach(ele => {
+        const key = Object.keys(ele)[0]
+        ele[key].forEach(item => {
+            if (minLenMap[item]) {
+              minLenMap[item].push(key)
+            } else {
+              minLenMap[item] = [key]
+            }
+        })
+    })
+
+    console.log(lenMap, '各列长度Map')
+
+    console.log(newMap, '大于3次出现次数Map')
+
+    console.log(minLenMap, '各数据出现Map')
+
     if (methodChecked.value === 2 && !Object.keys(lenMap).includes(colsName.value)) {
       alert('当前输入单列去重标题不存在')
       return
     }
-    console.log(lenMap, 'lenMap')
-
-    console.log(newMap, 'newMap')
 
     // 全局去重
     if (methodChecked.value === 1) {
-      const entries = Object.entries(lenMap)
-      const minValuePropertys = entries.sort((a, b) => a[1] - b[1]).slice(0, 2).map(ele => ele[0])
+      // const entries = Object.entries(lenMap)
+      // const minValuePropertys = entries.sort((a, b) => a[1] - b[1]).slice(0, 2).map(ele => ele[0])
       result.forEach(ele => {
           console.log(ele, 'result item')
           Object.keys(ele).forEach(key => {
@@ -116,6 +132,7 @@ function handleDuplicates (excelData) {
               value.forEach((valueItem, i) => {
                   // console.log(valueItem, `第${i + 1}列数据`)
                   if (Object.keys(newMap).includes(String(valueItem))) {
+                      const minValuePropertys = minLenMap[valueItem].sort((a, b) => lenMap[a] - lenMap[b]).slice(0, 2)
                       if (!minValuePropertys.includes(key)) {
                           // 如果有两列最小数据长度不包含当前列，则剔除当前属性
                           console.log(valueItem, key, minValuePropertys, 'duplicate item')
